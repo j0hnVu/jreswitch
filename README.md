@@ -2,7 +2,7 @@
  Script to download multiple JDK versions and update Java path.
 
 
-# How to
+# How to use the script
 
 ```
 source jdk-version-switcher.sh
