@@ -13,5 +13,5 @@ source jdk-version-switcher.sh
 
 
 # Contact
-**Discord**: thatonempd
+**Discord**: thatonempd \n
 **Email**: hoanganh170788@gmail.com
