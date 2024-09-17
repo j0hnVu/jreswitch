@@ -1,6 +1,6 @@
 # jdk-version-switcher
  Script to download multiple JDK versions and update Java path.
-
+ - The sole purpose is to change JDK version to run different Minecraft Server Jars quicker
 
 # How to use the script
 
