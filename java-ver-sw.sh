@@ -9,16 +9,16 @@ update_profile() {
     # Remove any existing JAVA_HOME entries
     sed -i '/^export JAVA_HOME=/d' "$profile_file" 
 
-    # Remove any existing PATH settings related to javaswitcher (more flexible pattern)
-    sed -i '/javaswitcher[[:space:]]*\/[[:space:]]*java[[:space:]]*\/[[:space:]]*jdk/d' "$profile_file"
+    # Remove any existing PATH settings related to jdkswitcher
+    sed -i '/jdkswitcher[[:space:]]*\/[[:space:]]*java[[:space:]]*\/[[:space:]]*jdk/d' "$profile_file"
 
     # Remove all existing PATH assignments (if there are multiple)
     sed -i '/^export PATH=/d' "$profile_file" 
 	
 	
 	if [[ ":$PATH:" != *":$java_path:"* ]]; then
-        # Remove any existing javaswitcher paths from current PATH
-        export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "javaswitcher" | tr '\n' ':' | sed 's/:$//')
+        # Remove any existing jdkswitcher paths from current PATH
+        export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "jdkswitcher" | tr '\n' ':' | sed 's/:$//')
 
         # Add new JAVA_HOME and JAVA_PATH to the profile
         echo "export PATH=$java_path:\$PATH" >> "$profile_file"
@@ -29,8 +29,8 @@ update_profile() {
 }
 
 
-# Create the javaswitcher directories if they don't exist
-mkdir -p ~/javaswitcher/java
+# Create the jdkswitcher directories if they don't exist
+mkdir -p ~/jdkswitcher/java
 echo "Which Java version?"
 printf "\n"
 echo "1. jdk8"
@@ -49,68 +49,68 @@ profile_file="$HOME/.profile"
 
 # JDK 8
 if [ "$option" = "1" ]; then
-    if [ ! -d ~/javaswitcher/java/jdk8/ ]; then
-        mkdir -p ~/javaswitcher/java/jdk8/
-        cd ~/javaswitcher/java/jdk8/
+    if [ ! -d ~/jdkswitcher/java/jdk8/ ]; then
+        mkdir -p ~/jdkswitcher/java/jdk8/
+        cd ~/jdkswitcher/java/jdk8/
         wget "https://builds.openlogic.com/downloadJDK/openlogic-openjdk/8u422-b05/openlogic-openjdk-8u422-b05-linux-x64.tar.gz"
         tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
     else
         echo "JDK 8 already installed."
     fi
-    java_path=$(readlink -f ~/javaswitcher/java/jdk8/bin)
-    java_home=$(readlink -f ~/javaswitcher/java/jdk8)
+    java_path=$(readlink -f ~/jdkswitcher/java/jdk8/bin)
+    java_home=$(readlink -f ~/jdkswitcher/java/jdk8)
 
 # JDK 17
 elif [ "$option" = "2" ]; then
-    if [ ! -d ~/javaswitcher/java/jdk17/ ]; then
-        mkdir -p ~/javaswitcher/java/jdk17/
-        cd ~/javaswitcher/java/jdk17/
+    if [ ! -d ~/jdkswitcher/java/jdk17/ ]; then
+        mkdir -p ~/jdkswitcher/java/jdk17/
+        cd ~/jdkswitcher/java/jdk17/
         wget "https://download.java.net/java/GA/jdk17.0.2/dfd4a8d0985749f896bed50d7138ee7f/8/GPL/openjdk-17.0.2_linux-x64_bin.tar.gz"
         tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
     else
         echo "JDK 17 already installed."
     fi
-    java_path=$(readlink -f ~/javaswitcher/java/jdk17/bin)
-    java_home=$(readlink -f ~/javaswitcher/java/jdk17)
+    java_path=$(readlink -f ~/jdkswitcher/java/jdk17/bin)
+    java_home=$(readlink -f ~/jdkswitcher/java/jdk17)
 
 # JDK 18
 elif [ "$option" = "3" ]; then
-    if [ ! -d ~/javaswitcher/java/jdk18/ ]; then
-        mkdir -p ~/javaswitcher/java/jdk18/
-        cd ~/javaswitcher/java/jdk18/
+    if [ ! -d ~/jdkswitcher/java/jdk18/ ]; then
+        mkdir -p ~/jdkswitcher/java/jdk18/
+        cd ~/jdkswitcher/java/jdk18/
         wget "https://download.java.net/java/GA/jdk18/43f95e8614114aeaa8e8a5fcf20a682d/36/GPL/openjdk-18_linux-x64_bin.tar.gz"
         tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
     else
         echo "JDK 18 already installed."
     fi
-    java_path=$(readlink -f ~/javaswitcher/java/jdk18/bin)
-    java_home=$(readlink -f ~/javaswitcher/java/jdk18)
+    java_path=$(readlink -f ~/jdkswitcher/java/jdk18/bin)
+    java_home=$(readlink -f ~/jdkswitcher/java/jdk18)
 
 # JDK 21
 elif [ "$option" = "4" ]; then
-    if [ ! -d ~/javaswitcher/java/jdk21/ ]; then
-        mkdir -p ~/javaswitcher/java/jdk21/
-        cd ~/javaswitcher/java/jdk21/
+    if [ ! -d ~/jdkswitcher/java/jdk21/ ]; then
+        mkdir -p ~/jdkswitcher/java/jdk21/
+        cd ~/jdkswitcher/java/jdk21/
         wget "https://download.java.net/java/GA/jdk21/fd2272bbf8e04c3dbaee13770090416c/35/GPL/openjdk-21_linux-x64_bin.tar.gz"
         tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
     else
         echo "JDK 21 already installed."
     fi
-    java_path=$(readlink -f ~/javaswitcher/java/jdk21/bin)
-    java_home=$(readlink -f ~/javaswitcher/java/jdk21)
+    java_path=$(readlink -f ~/jdkswitcher/java/jdk21/bin)
+    java_home=$(readlink -f ~/jdkswitcher/java/jdk21)
 
 # JDK 22
 elif [ "$option" = "5" ]; then
-    if [ ! -d ~/javaswitcher/java/jdk22/ ]; then
-        mkdir -p ~/javaswitcher/java/jdk22/
-        cd ~/javaswitcher/java/jdk22/
+    if [ ! -d ~/jdkswitcher/java/jdk22/ ]; then
+        mkdir -p ~/jdkswitcher/java/jdk22/
+        cd ~/jdkswitcher/java/jdk22/
         wget "https://download.java.net/java/GA/jdk22/830ec9fcccef480bb3e73fb7ecafe059/36/GPL/openjdk-22_linux-x64_bin.tar.gz"
         tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
     else
         echo "JDK 22 already installed."
     fi
-    java_path=$(readlink -f ~/javaswitcher/java/jdk22/bin)
-    java_home=$(readlink -f ~/javaswitcher/java/jdk22)
+    java_path=$(readlink -f ~/jdkswitcher/java/jdk22/bin)
+    java_home=$(readlink -f ~/jdkswitcher/java/jdk22)
 
 else
     echo "Invalid option. Script is terminated"
