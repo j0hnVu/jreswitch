@@ -5,7 +5,7 @@
 # How to use the script
 
 ```
-source jdk-version-switcher.sh
+source java-ver-sw.sh
 ```
 
 - Then select the JDK version.
