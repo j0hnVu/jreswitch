@@ -38,6 +38,7 @@ echo "2. jdk17"
 echo "3. jdk18"
 echo "4. jdk21"
 echo "5. jdk22"
+echo "6. jdk23"
 printf "\n"
 printf "Option: "
 read option
@@ -112,6 +113,18 @@ elif [ "$option" = "5" ]; then
     java_path=$(readlink -f ~/jdkswitcher/java/jdk22/bin)
     java_home=$(readlink -f ~/jdkswitcher/java/jdk22)
 
+# JDK 23
+elif [ "$option" = "6" ]; then
+    if [ ! -d ~/jdkswitcher/java/jdk23/ ]; then
+        mkdir -p ~/jdkswitcher/java/jdk23/
+        cd ~/jdkswitcher/java/jdk23/
+        wget "https://download.java.net/java/GA/jdk23.0.1/c28985cbf10d4e648e4004050f8781aa/11/GPL/openjdk-23.0.1_linux-x64_bin.tar.gz"
+        tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
+    else
+        echo "JDK 23 already installed."
+    fi
+    java_path=$(readlink -f ~/jdkswitcher/java/jdk23/bin)
+    java_home=$(readlink -f ~/jdkswitcher/java/jdk23)
 else
     echo "Invalid option. Script is terminated"
     exit 1
