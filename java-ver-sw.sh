@@ -127,7 +127,7 @@ case $option in
 esac
 
 # Update the JAVA_PATH and JAVA_HOME in the profile file
-if [ $option != "p" ]; then
+if [ "$option" != "p" ]; then
     update_profile "$profile_file" "$java_path" "$java_home"
 fi
 
