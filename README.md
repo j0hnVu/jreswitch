@@ -5,6 +5,8 @@
 # How to use the script
 
 ```
+git clone https://github.com/j0hnVu/jre-version-switcher.git
+cd jre-version-switcher
 source java-ver-sw.sh
 ```
 
