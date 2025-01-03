@@ -28,9 +28,11 @@ update_profile() {
     fi
 }
 
+# Required.
+sudo apt install wget tar
 
 # Create the jdkswitcher directories if they don't exist
-mkdir -p ~/jdkswitcher/java
+mkdir -p ~/jdkswitcher/java >> /dev/null
 echo "Which Java version?"
 printf "\n"
 echo "1. jdk8"
@@ -39,96 +41,90 @@ echo "3. jdk18"
 echo "4. jdk21"
 echo "5. jdk22"
 echo "6. jdk23"
+echo "p. Delete all downloaded JDK"
+echo "0. Exit"
 printf "\n"
 printf "Option: "
 read option
 
 clear
 
-# Choose profile file based on the system (Debian typically uses .profile for login shells)
+# Define profile file and JDK directory path for the script (Debian uses .profile for login shells)
 profile_file="$HOME/.profile"
+dir_path="~/jdkswitcher/java"
 
-# JDK 8
-if [ "$option" = "1" ]; then
-    if [ ! -d ~/jdkswitcher/java/jdk8/ ]; then
-        mkdir -p ~/jdkswitcher/java/jdk8/
-        cd ~/jdkswitcher/java/jdk8/
-        wget "https://builds.openlogic.com/downloadJDK/openlogic-openjdk/8u422-b05/openlogic-openjdk-8u422-b05-linux-x64.tar.gz"
-        tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
-    else
-        echo "JDK 8 already installed."
-    fi
-    java_path=$(readlink -f ~/jdkswitcher/java/jdk8/bin)
-    java_home=$(readlink -f ~/jdkswitcher/java/jdk8)
-
-# JDK 17
-elif [ "$option" = "2" ]; then
-    if [ ! -d ~/jdkswitcher/java/jdk17/ ]; then
-        mkdir -p ~/jdkswitcher/java/jdk17/
-        cd ~/jdkswitcher/java/jdk17/
-        wget "https://download.java.net/java/GA/jdk17.0.2/dfd4a8d0985749f896bed50d7138ee7f/8/GPL/openjdk-17.0.2_linux-x64_bin.tar.gz"
-        tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
-    else
-        echo "JDK 17 already installed."
-    fi
-    java_path=$(readlink -f ~/jdkswitcher/java/jdk17/bin)
-    java_home=$(readlink -f ~/jdkswitcher/java/jdk17)
-
-# JDK 18
-elif [ "$option" = "3" ]; then
-    if [ ! -d ~/jdkswitcher/java/jdk18/ ]; then
-        mkdir -p ~/jdkswitcher/java/jdk18/
-        cd ~/jdkswitcher/java/jdk18/
-        wget "https://download.java.net/java/GA/jdk18/43f95e8614114aeaa8e8a5fcf20a682d/36/GPL/openjdk-18_linux-x64_bin.tar.gz"
-        tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
-    else
-        echo "JDK 18 already installed."
-    fi
-    java_path=$(readlink -f ~/jdkswitcher/java/jdk18/bin)
-    java_home=$(readlink -f ~/jdkswitcher/java/jdk18)
-
-# JDK 21
-elif [ "$option" = "4" ]; then
-    if [ ! -d ~/jdkswitcher/java/jdk21/ ]; then
-        mkdir -p ~/jdkswitcher/java/jdk21/
-        cd ~/jdkswitcher/java/jdk21/
-        wget "https://download.java.net/java/GA/jdk21/fd2272bbf8e04c3dbaee13770090416c/35/GPL/openjdk-21_linux-x64_bin.tar.gz"
-        tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
-    else
-        echo "JDK 21 already installed."
-    fi
-    java_path=$(readlink -f ~/jdkswitcher/java/jdk21/bin)
-    java_home=$(readlink -f ~/jdkswitcher/java/jdk21)
-
-# JDK 22
-elif [ "$option" = "5" ]; then
-    if [ ! -d ~/jdkswitcher/java/jdk22/ ]; then
-        mkdir -p ~/jdkswitcher/java/jdk22/
-        cd ~/jdkswitcher/java/jdk22/
-        wget "https://download.java.net/java/GA/jdk22/830ec9fcccef480bb3e73fb7ecafe059/36/GPL/openjdk-22_linux-x64_bin.tar.gz"
-        tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
-    else
-        echo "JDK 22 already installed."
-    fi
-    java_path=$(readlink -f ~/jdkswitcher/java/jdk22/bin)
-    java_home=$(readlink -f ~/jdkswitcher/java/jdk22)
-
-# JDK 23
-elif [ "$option" = "6" ]; then
-    if [ ! -d ~/jdkswitcher/java/jdk23/ ]; then
-        mkdir -p ~/jdkswitcher/java/jdk23/
-        cd ~/jdkswitcher/java/jdk23/
-        wget "https://download.java.net/java/GA/jdk23.0.1/c28985cbf10d4e648e4004050f8781aa/11/GPL/openjdk-23.0.1_linux-x64_bin.tar.gz"
-        tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
-    else
-        echo "JDK 23 already installed."
-    fi
-    java_path=$(readlink -f ~/jdkswitcher/java/jdk23/bin)
-    java_home=$(readlink -f ~/jdkswitcher/java/jdk23)
-else
-    echo "Invalid option. Script is terminated"
-    exit 1
-fi
+case $option in
+    1) # JDK8
+        if [ ! -d $dir_path/jdk8 ]; then
+            mkdir -p $dir_path/jdk8
+            cd $dir_path/jdk8
+            wget -q --show-progress "https://builds.openlogic.com/downloadJDK/openlogic-openjdk/8u422-b05/openlogic-openjdk-8u422-b05-linux-x64.tar.gz"
+            tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
+        fi
+        java_path=$(readlink -f $dir_path/jdk8/bin)
+        java_home=$(readlink -f $dir_path/jdk8)
+        ;;
+    2) # JDK17
+        if [ ! -d $dir_path/jdk17 ]; then
+            mkdir -p $dir_path/jdk17
+            cd $dir_path/jdk17
+            wget -q --show-progress "https://download.java.net/java/GA/jdk17.0.2/dfd4a8d0985749f896bed50d7138ee7f/8/GPL/openjdk-17.0.2_linux-x64_bin.tar.gz"
+            tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
+        fi
+        java_path=$(readlink -f $dir_path/jdk17/bin)
+        java_home=$(readlink -f $dir_path/jdk17)
+        ;;
+    3) # JDK 18
+        if [ ! -d $dir_path/jdk18 ]; then
+            mkdir -p $dir_path/jdk18
+            cd $dir_path/jdk18
+            wget -q --show-progress "https://download.java.net/java/GA/jdk18/43f95e8614114aeaa8e8a5fcf20a682d/36/GPL/openjdk-18_linux-x64_bin.tar.gz"
+            tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
+        fi
+        java_path=$(readlink -f $dir_path/jdk18/bin)
+        java_home=$(readlink -f $dir_path/jdk18)
+        ;;
+    4) # JDK 21
+        if [ ! -d $dir_path/jdk21 ]; then
+            mkdir -p $dir_path/jdk21
+            cd $dir_path/jdk21
+            wget -q --show-progress "https://download.java.net/java/GA/jdk21/fd2272bbf8e04c3dbaee13770090416c/35/GPL/openjdk-21_linux-x64_bin.tar.gz"
+            tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
+        fi
+        java_path=$(readlink -f $dir_path/jdk21/bin)
+        java_home=$(readlink -f $dir_path/jdk21)
+        ;;
+    5) # JDK 22
+        if [ ! -d $dir_path/jdk22 ]; then
+            mkdir -p $dir_path/jdk22
+            cd $dir_path/jdk22
+            wget -q --show-progress "https://download.java.net/java/GA/jdk22/830ec9fcccef480bb3e73fb7ecafe059/36/GPL/openjdk-22_linux-x64_bin.tar.gz"
+            tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
+        fi
+        java_path=$(readlink -f $dir_path/jdk22/bin)
+        java_home=$(readlink -f $dir_path/jdk22)
+        ;;
+    6) # JDK 23
+        if [ ! -d $dir_path/jdk23 ]; then
+            mkdir -p $dir_path/jdk23
+            cd $dir_path/jdk23
+            wget -q --show-progress "https://download.java.net/java/GA/jdk23.0.1/c28985cbf10d4e648e4004050f8781aa/11/GPL/openjdk-23.0.1_linux-x64_bin.tar.gz"
+            tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
+        fi
+        java_path=$(readlink -f $dir_path/jdk23/bin)
+        java_home=$(readlink -f $dir_path/jdk23)
+        ;;
+    p)
+        rm -rf $dir_path/*
+        ;;
+    0)
+        exit 1
+        ;;
+    *)
+        echo "Invalid option. Script is terminated"
+        exit 1
+        ;;
+esac
 
 # Update the JAVA_PATH and JAVA_HOME in the profile file
 update_profile "$profile_file" "$java_path" "$java_home"
