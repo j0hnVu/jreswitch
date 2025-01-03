@@ -30,6 +30,7 @@ update_profile() {
 
 # Required.
 sudo apt install wget tar
+clear
 
 # Create the jdkswitcher directories if they don't exist
 mkdir -p ~/jdkswitcher/java >> /dev/null
@@ -51,7 +52,7 @@ clear
 
 # Define profile file and JDK directory path for the script (Debian uses .profile for login shells)
 profile_file="$HOME/.profile"
-dir_path="~/jdkswitcher/java"
+dir_path="$HOME/jdkswitcher/java"
 
 case $option in
     1) # JDK8
