@@ -5,11 +5,14 @@
 # How to use the script
 
 ```
+git clone https://github.com/j0hnVu/jre-version-switcher.git
+cd jre-version-switcher
 source java-ver-sw.sh
 ```
 
-- Then select the JDK version.
+- Select the JDK version.
 - The JDK files should be automatically downloaded and path be updated.
+- You can also type "p" to delete all downloaded JRE/JDK
 
 
 # Contact
