@@ -8,118 +8,98 @@ update_profile() {
 
     # Remove any existing JAVA_HOME entries
     sed -i '/^export JAVA_HOME=/d' "$profile_file" 
-
-    # Remove any existing PATH settings related to jdkswitcher
-    sed -i '/jdkswitcher[[:space:]]*\/[[:space:]]*java[[:space:]]*\/[[:space:]]*jdk/d' "$profile_file"
-
-    # Remove all existing PATH assignments (if there are multiple)
+    sed -i '/jreswitcher[[:space:]]*\/[[:space:]]*java[[:space:]]*\/[[:space:]]*jre/d' "$profile_file"
     sed -i '/^export PATH=/d' "$profile_file" 
 	
-	
-	if [[ ":$PATH:" != *":$java_path:"* ]]; then
-        # Remove any existing jdkswitcher paths from current PATH
-        export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "jdkswitcher" | tr '\n' ':' | sed 's/:$//')
-
-        # Add new JAVA_HOME and JAVA_PATH to the profile
-        echo "export PATH=$java_path:\$PATH" >> "$profile_file"
-        echo "export JAVA_HOME=$java_home" >> "$profile_file"
-    else
-        echo "The path $java_path is already in PATH, skipping update."
-    fi
+    # Add new JAVA_HOME and JAVA_PATH to the profile
+    echo "export PATH=$java_path:\$PATH" >> "$profile_file"
+    echo "export JAVA_HOME=$java_home" >> "$profile_file"
 }
 
-# Required.
-sudo apt install wget tar
+get_latest_jar_url() {
+    jre_ver="$1"
+
+    # x64 instead of x86_64 cause of Adoptium file naming
+    if [ "$(uname -m)" = "x86_64" ]; then
+        arch="x64"
+    elif [ "$(uname -m)" = "armv7l" ]; then
+        arch="arm"
+    else
+        arch="$2"
+    fi
+
+    # Check for OS distribution
+    if grep -iq "alpine" /etc/os-release; then
+        dist_suffix="_alpine-linux_"
+    else
+        dist_suffix="_linux_"
+    fi
+
+    curl -s "https://api.github.com/repos/adoptium/temurin${jre_ver}-binaries/releases/latest" | jq -r --arg arch "$arch" --arg suffix "$dist_suffix" '.assets[] | select(.name | contains("hotspot") and contains("jre") and contains($arch) and contains($suffix) and endswith(".tar.gz")) | .browser_download_url'
+}
+
+installer(){
+    jre_ver="$1"
+    if [ ! -d $dir_path/jre${jre_ver} ]; then
+        mkdir -p $dir_path/jre${jre_ver}
+    fi
+    cd $dir_path/jre${jre_ver}
+    wget -q --show-progress "$(get_latest_jar_url "$jre_ver" "$(uname -m)")" || { echo "Download failed. Network issue or URL is expired.";sleep 5; exit 1; }
+    tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
+    java_path=$(readlink -f $dir_path/jre${jre_ver}/bin)
+    java_home=$(readlink -f $dir_path/jre${jre_ver})
+}
+
+# Required dependencies
+#sudo apt update
+#sudo apt install wget tar jg
 clear
 
-# Create the jdkswitcher directories if they don't exist
-mkdir -p ~/jdkswitcher/java >> /dev/null
-echo "Which Java version?"
+# Create the jreswitcher directories if they don't exist
+mkdir -p ~/jreswitcher/java
+echo "Current architecture: $(uname -m)"
+echo "Please choose a Java Runtime version: "
 printf "\n"
-echo "1. jdk8"
-echo "2. jdk17"
-echo "3. jdk18"
-echo "4. jdk21"
-echo "5. jdk22"
-echo "6. jdk23"
-echo "p. Delete all downloaded JDK"
+echo "1. JRE 8"
+echo "2. JRE 17"
+echo "3. JRE 18"
+echo "4. JRE 21"
+echo "5. JRE 22"
+echo "6. JRE 23"
+# echo "o. Override architecture" {TODO}
+echo "p. Delete all downloaded JRE"
 echo "0. Exit"
-printf "\n"
-printf "Option: "
-read option
+read -p "Option: " option
 
 clear
 
-# Define profile file and JDK directory path for the script (Debian uses .profile for login shells)
+# Define profile file and JRE directory path for the script (Debian uses .profile for login shells)
 profile_file="$HOME/.profile"
-dir_path="$HOME/jdkswitcher/java"
+dir_path="$HOME/jreswitcher/java"
 
 case $option in
-    1) # JDK8
-        if [ ! -d $dir_path/jdk8 ]; then
-            mkdir -p $dir_path/jdk8
-            cd $dir_path/jdk8
-            wget -q --show-progress "https://builds.openlogic.com/downloadJDK/openlogic-openjdk/8u422-b05/openlogic-openjdk-8u422-b05-linux-x64.tar.gz"
-            tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
-        fi
-        java_path=$(readlink -f $dir_path/jdk8/bin)
-        java_home=$(readlink -f $dir_path/jdk8)
-        ;;
-    2) # JDK17
-        if [ ! -d $dir_path/jdk17 ]; then
-            mkdir -p $dir_path/jdk17
-            cd $dir_path/jdk17
-            wget -q --show-progress "https://download.java.net/java/GA/jdk17.0.2/dfd4a8d0985749f896bed50d7138ee7f/8/GPL/openjdk-17.0.2_linux-x64_bin.tar.gz"
-            tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
-        fi
-        java_path=$(readlink -f $dir_path/jdk17/bin)
-        java_home=$(readlink -f $dir_path/jdk17)
-        ;;
-    3) # JDK 18
-        if [ ! -d $dir_path/jdk18 ]; then
-            mkdir -p $dir_path/jdk18
-            cd $dir_path/jdk18
-            wget -q --show-progress "https://download.java.net/java/GA/jdk18/43f95e8614114aeaa8e8a5fcf20a682d/36/GPL/openjdk-18_linux-x64_bin.tar.gz"
-            tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
-        fi
-        java_path=$(readlink -f $dir_path/jdk18/bin)
-        java_home=$(readlink -f $dir_path/jdk18)
-        ;;
-    4) # JDK 21
-        if [ ! -d $dir_path/jdk21 ]; then
-            mkdir -p $dir_path/jdk21
-            cd $dir_path/jdk21
-            wget -q --show-progress "https://download.java.net/java/GA/jdk21/fd2272bbf8e04c3dbaee13770090416c/35/GPL/openjdk-21_linux-x64_bin.tar.gz"
-            tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
-        fi
-        java_path=$(readlink -f $dir_path/jdk21/bin)
-        java_home=$(readlink -f $dir_path/jdk21)
-        ;;
-    5) # JDK 22
-        if [ ! -d $dir_path/jdk22 ]; then
-            mkdir -p $dir_path/jdk22
-            cd $dir_path/jdk22
-            wget -q --show-progress "https://download.java.net/java/GA/jdk22/830ec9fcccef480bb3e73fb7ecafe059/36/GPL/openjdk-22_linux-x64_bin.tar.gz"
-            tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
-        fi
-        java_path=$(readlink -f $dir_path/jdk22/bin)
-        java_home=$(readlink -f $dir_path/jdk22)
-        ;;
-    6) # JDK 23
-        if [ ! -d $dir_path/jdk23 ]; then
-            mkdir -p $dir_path/jdk23
-            cd $dir_path/jdk23
-            wget -q --show-progress "https://download.java.net/java/GA/jdk23.0.1/c28985cbf10d4e648e4004050f8781aa/11/GPL/openjdk-23.0.1_linux-x64_bin.tar.gz"
-            tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
-        fi
-        java_path=$(readlink -f $dir_path/jdk23/bin)
-        java_home=$(readlink -f $dir_path/jdk23)
-        ;;
+    1) # JRE8
+        installer "8" ;;
+    2) # JRE17
+        installer "17" ;;
+    3) # JRE 18
+        installer "18" ;;
+    4) # JRE 21
+        installer "21" ;;
+    5) # JRE 22
+        installer "22" ;;
+    6) # JRE 23
+        installer "23" ;;
+    #o) Override Architecture
+    #    echo "TO-DO"
+    #    ;;
     p)
         rm -rf $dir_path/*
+        echo "All JREs deleted."
+        exit 0
         ;;
     0)
-        exit 1
+        exit 0
         ;;
     *)
         echo "Invalid option. Script is terminated"
@@ -128,11 +108,8 @@ case $option in
 esac
 
 # Update the JAVA_PATH and JAVA_HOME in the profile file
-if [ "$option" != "p" ]; then
-    update_profile "$profile_file" "$java_path" "$java_home"
-fi
-
-# Reload the profile to apply the changes only once
+update_profile "$profile_file" "$java_path" "$java_home"
+# Reload the profile to apply the changes
 source "$profile_file"
 
 clear
