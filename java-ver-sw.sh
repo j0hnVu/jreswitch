@@ -28,7 +28,7 @@ get_latest_jar_url() {
         arch="$2"
     fi
 
-    # Check for OS distribution
+    # check for isAlpine
     if grep -iq "alpine" /etc/os-release; then
         dist_suffix="_alpine-linux_"
     else
@@ -51,8 +51,7 @@ installer(){
 }
 
 # Required dependencies
-#sudo apt update
-#sudo apt install wget tar jg
+sudo apt install wget tar jg
 clear
 
 # Create the jreswitcher directories if they don't exist
