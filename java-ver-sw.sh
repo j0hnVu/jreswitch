@@ -32,7 +32,7 @@ get_latest_jar_url() {
         fi
     fi
 
-    # check for isAlpine
+    # Check for OS distribution
     if grep -iq "alpine" /etc/os-release; then
         dist_suffix="_alpine-linux_"
     else
@@ -92,111 +92,41 @@ profile_file="$HOME/.profile"
 dir_path="$HOME/jreswitcher/java"
 noInstall=0
 
-while true; do
-    echo "Please choose a Java Runtime version: "
-    printf "\n"
-    echo "1. JRE 8"
-    echo "2. JRE 17"
-    echo "3. JRE 18"
-    echo "4. JRE 21"
-    echo "5. JRE 22"
-    echo "6. JRE 23"
-    echo "o. Toggle download only"
-    echo "p. Delete all downloaded JRE"
-    echo "0. Exit"
-    printf "\n"
-    echo "Current architecture: $(uname -m)"
-    read -p "Option: " option
-    clear
-    if [ $noInstall == 0 ]; then
-        case $option in
-            1) # JRE 8
-                downloader "8"
-                installer 
-                break ;;
-            2) # JRE 17
-                downloader "17" 
-                installer
-                break ;;
-            3) # JRE 18
-                downloader "18"
-                installer 
-                break ;;
-            4) # JRE 21
-                downloader "21"
-                installer 
-                break ;;
-            5) # JRE 22
-                downloader "22"
-                installer 
-                break ;;
-            6) # JRE 23
-                downloader "23"
-                installer 
-                break ;;
-            o) # noInstall=1
-                noInstall=1
-                echo "Download only is enabled."
-                sleep 3
-                ;;
-            p)
-                rm -rf $dir_path/*
-                echo "All JREs deleted."
-                ;;
-            0)
-                exit 0
-                ;;
-            *)
-                echo "Invalid option."
-                ;;
-        esac
-    else
-        isOKArch=0
-        while [ $isOKArch -eq 0 ]; do
-            echo "Supported architectures: ${valid_archs[@]}"
-            read -p "Please enter the preferred architecture: " arch_option
-            if [[ " ${valid_archs[@]} " =~ " ${arch_option} " ]]; then
-                echo "$arch_option is supported."
-                isOKArch=1
-            else
-                echo "$arch_option is not supported. Please choose a different arch."
-            fi
-        done
-        case $option in
-            1) # JRE8
-                downloader "8" "$arch_option"
-                break ;;
-            2) # JRE17
-                downloader "17" "$arch_option"
-                break ;;
-            3) # JRE 18
-                downloader "18" "$arch_option"
-                break ;;
-            4) # JRE 21
-                downloader "21" "$arch_option"
-                break ;;
-            5) # JRE 22
-                downloader "22" "$arch_option"
-                break ;;
-            6) # JRE 23
-                downloader "23" "$arch_option"
-                break ;;
-            o) # noInstall=0
-                noInstall=0
-                echo "Download only is disabled."
-                sleep 3
-                ;;
-            p)
-                rm -rf $dir_path/*
-                echo "All JREs deleted."
-                ;;
-            0)
-                exit 0
-                ;;
-            *)
-                echo "Invalid option."
-                ;;
-        esac
-    fi
-done
-exit 0
+case $option in
+    1) # JRE8
+        downloader "8" 
+        installer ;;
+    2) # JRE17
+        downloader "17" 
+        installer ;;
+    3) # JRE 18
+        downloader "18"
+        installer ;;
+    4) # JRE 21
+        downloader "21"
+        installer ;;
+    5) # JRE 22
+        downloader "22"
+        installer ;;
+    6) # JRE 23
+        downloader "23"
+        installer ;;
+    #o) Override Architecture
+    #    echo "TO-DO"
+    #    ;;
+    p)
+        rm -rf $dir_path/*
+        echo "All JREs deleted."
+        exit 0
+        ;;
+    0)
+        exit 0
+        ;;
+    *)
+        echo "Invalid option. Script is terminated"
+        exit 1
+        ;;
+esac
+
+clear
+java -version
