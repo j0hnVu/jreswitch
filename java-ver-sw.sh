@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Define profile file and JRE directory path for the script (Debian uses .profile for login shells)
+profile_file="$HOME/.profile"
+dir_path="$HOME/jreswitcher/java"
+noInstall=0
+
+# Create the jreswitcher directories if they don't exist
+mkdir -p "$dir_path"
+
 # Function to update the JAVA_HOME and JAVA_PATH in the profile
 update_profile() {
     profile_file="$1"
@@ -45,20 +53,11 @@ get_latest_jar_url() {
 # Download JRE binary
 downloader(){
     jre_ver="$1"
-    arch="$2"
-    local ovr_dir_path="$3"
 
-    if [ -n $ovr_dir_path ]; then
-        dir_path="$ovr_dir_path"
-    fi
-
-    if [ ! -d $dir_path/jre${jre_ver} ]; then
-        mkdir -p $dir_path/jre${jre_ver}
-    fi
-
+    mkdir -p "$dir_path/jre${jre_ver}"
     cd "$dir_path/jre${jre_ver}"
-    wget -q --show-progress "$(get_latest_jar_url "$jre_ver" "$arch")" || { echo "Download failed. Network issue or URL is expired.";sleep 5; exit 1; }
-    if [ $noInstall -eq 1 ]; then    
+    wget -q --show-progress "$(get_latest_jar_url "$jre_ver" "$(uname -m)" || { echo "Download failed. Network issue or URL is expired.";sleep 5; exit 1; }
+    if [ "$noInstall" -eq 1 ]; then    
         echo "Download done."
         ls
     fi
@@ -68,8 +67,8 @@ downloader(){
 installer(){
     cd "$dir_path/jre${jre_ver}"
     tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
-    java_path=$(readlink -f $dir_path/jre${jre_ver}/bin)
-    java_home=$(readlink -f $dir_path/jre${jre_ver})
+    java_path=$(readlink -f "$dir_path/jre${jre_ver}/bin")
+    java_home=$(readlink -f "$dir_path/jre${jre_ver}")
 
     # Update the JAVA_PATH and JAVA_HOME in the profile file
     update_profile "$profile_file" "$java_path" "$java_home"
@@ -81,16 +80,24 @@ installer(){
 }
 
 # Required dependencies
-sudo apt install -y wget tar jg
+sudo apt install -y wget tar jq
 clear
 
-# Create the jreswitcher directories if they don't exist
-mkdir -p ~/jreswitcher/java
-
-# Define profile file and JRE directory path for the script (Debian uses .profile for login shells)
-profile_file="$HOME/.profile"
-dir_path="$HOME/jreswitcher/java"
-noInstall=0
+echo "Please choose a Java Runtime version: "
+printf "\n"
+echo "1. JRE 8"
+echo "2. JRE 17"
+echo "3. JRE 18"
+echo "4. JRE 21"
+echo "5. JRE 22"
+echo "6. JRE 23"
+echo "o. Toggle download only"
+echo "p. Delete all downloaded JRE"
+echo "0. Exit"
+printf "\n"
+echo "Current architecture: $(uname -m)"
+read -p "Option: " option
+clear
 
 case $option in
     1) # JRE8
@@ -115,7 +122,7 @@ case $option in
     #    echo "TO-DO"
     #    ;;
     p)
-        rm -rf $dir_path/*
+        rm -rf "$dir_path"/*
         echo "All JREs deleted."
         exit 0
         ;;
