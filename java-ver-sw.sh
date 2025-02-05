@@ -65,7 +65,7 @@ downloader() {
     cd "$dir_path/jre${jre_ver}"
 
     local url
-    url=$(get_latest_jar_url "$jre_ver")
+    url=$(getLatestURL "$jre_ver")
     wget -q --show-progress "$url" || { echo "Download failed. Network issue or URL is expired."; sleep 5; exit 1; }
 
     # Save the URL to the JSON file
