@@ -7,7 +7,7 @@
 ```
 git clone https://github.com/j0hnVu/jreswitch.git
 cd jreswitch
-source javaswitch.sh
+source jreswitch.sh
 ```
 
 - Select the JDK version.
