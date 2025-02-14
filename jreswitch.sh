@@ -3,7 +3,7 @@
 profile_file="$HOME/.profile"
 dir_path="$HOME/jreswitcher/java"
 arch="$(uname -m)"
-some_file="$dir_path/last_known_good_url.json"
+bak_file="$dir_path/last_known_good_url.json"
 
 mkdir -p "$dir_path"
 
@@ -25,6 +25,7 @@ update_profile() {
 getLatestURL() {
     local jre_ver="$1"
 
+    # Architecture name correction to match Adoptium file naming
     if [ "$arch" = "x86_64" ]; then
         arch="x64"
     elif [ "$arch" = "armv7l" ]; then
@@ -42,8 +43,8 @@ getLatestURL() {
 
     if [ -z "$url" ]; then
         # Fallback: Check the JSON file for the saved URL
-        if [ -f "$link_file" ]; then
-            url=$(jq -r --arg ver "$jre_ver" '.[$ver]' "$some_file")
+        if [ -f "$bak_file" ]; then
+            url=$(jq -r --arg ver "$jre_ver" '.[$ver]' "$bak_file")
             if [ -z "$url" ]; then
                 echo "Error: No URL found for JRE $jre_ver in the JSON file."
                 exit 1
@@ -69,10 +70,10 @@ downloader() {
     wget -q --show-progress "$url" || { echo "Download failed. Network issue or URL is expired."; sleep 5; exit 1; }
 
     # Save the URL to the JSON file
-    if [ -f "$link_file" ]; then
-        jq --arg ver "$jre_ver" --arg url "$url" '.[$ver] = $url' "$link_file" > "$link_file"
+    if [ -f "$bak_file" ]; then
+        jq --arg ver "$jre_ver" --arg url "$url" '.[$ver] = $url' "$bak_file" > "$bak_file"
     else
-        echo "{\"$jre_ver\": \"$url\"}" > "$link_file"
+        echo "{\"$jre_ver\": \"$url\"}" > "$bak_file"
     fi
 }
 
@@ -81,7 +82,7 @@ downloader() {
 installer() {
     local jre_ver="$1"
 
-    cd "$dir_path/jre${jre_ver}" || { echo "Directory not found!"; exit 1; }
+    cd "$dir_path/jre${jre_ver}" || { echo "Directory not found! Please rerun the script."; exit 1; }
     tar --strip-components=1 -xvf *.tar.gz && rm *.tar.gz
     java_path=$(readlink -f "$dir_path/jre${jre_ver}/bin")
     java_home=$(readlink -f "$dir_path/jre${jre_ver}")
