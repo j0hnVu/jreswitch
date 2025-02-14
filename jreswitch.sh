@@ -3,7 +3,7 @@
 profile_file="$HOME/.profile"
 dir_path="$HOME/jreswitcher/java"
 arch="$(uname -m)"
-bak_file="$dir_path/last_known_good_url.json"
+bak_file="./fallback_url.json"
 
 mkdir -p "$dir_path"
 
