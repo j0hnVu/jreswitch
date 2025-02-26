@@ -1,4 +1,4 @@
-# jre-version-switcher
+# jreswitcher
  Script to download multiple JRE versions and update Java path.
  - The sole purpose is to change JRE version to run different Minecraft Server Jars quicker
 
