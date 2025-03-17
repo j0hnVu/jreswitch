@@ -8,14 +8,19 @@ bak_file="./fallback_url.json"
 mkdir -p "$dir_path"
 
 # Function to update the JAVA_HOME and JAVA_PATH in the profile
+
+clean_profile() {
+    sed -i '/^export JAVA_HOME=/d' "$profile_file" 
+    sed -i '/jreswitcher.*\/java.*\/jre/d' "$profile_file"
+    sed -i '/^export PATH=/d' "$profile_file" 
+}
+
 update_profile() {
     local profile_file="$1"
     local java_path="$2"
     local java_home="$3"
 
-    sed -i '/^export JAVA_HOME=/d' "$profile_file" 
-    sed -i '/jreswitcher.*\/java.*\/jre/d' "$profile_file"
-    sed -i '/^export PATH=/d' "$profile_file" 
+    clean_profile
     
     echo "export PATH=$java_path:\$PATH" >> "$profile_file"
     echo "export JAVA_HOME=$java_home" >> "$profile_file"
@@ -125,7 +130,7 @@ while true; do
         4) downloader "21"; installer "21"; break ;;
         5) downloader "22"; installer "22"; break ;;
         6) downloader "23"; installer "23"; break ;;
-        p) rm -rf "$dir_path"/*; echo "All JREs deleted."; sleep 2; continue ;;
+        p) rm -rf "$dir_path"/*; clean_profile ; echo "All JREs deleted. File path cleaned.";  sleep 2; continue ;;
         0) exit 0 ;;
         *) echo "Invalid option. Try again."; sleep 2; continue ;;
     esac
